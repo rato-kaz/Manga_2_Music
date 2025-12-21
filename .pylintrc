@@ -1,0 +1,49 @@
+[MASTER]
+# Python code to execute, usually for sys.path manipulation
+init-hook='import sys; sys.path.append("src")'
+
+[MESSAGES CONTROL]
+# Disable specific warnings
+disable=missing-docstring,too-few-public-methods,too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+# Indentation
+indent-string='    '
+indent-after-paren=4
+
+[BASIC]
+# Good variable names
+good-names=i,j,k,ex,Run,_,id,pk,db
+
+# Bad variable names
+bad-names=foo,bar,baz,toto,tutu,tata
+
+[DESIGN]
+# Maximum number of arguments
+max-args=7
+
+# Maximum number of attributes
+max-attributes=10
+
+# Maximum number of public methods
+max-public-methods=20
+
+# Maximum number of return statements
+max-returns=6
+
+# Maximum number of branches
+max-branches=12
+
+# Maximum number of statements
+max-statements=50
+
+[IMPORTS]
+# Allow wildcard imports
+allow-wildcard-with-all=no
+
+# Allow ungrouped imports
+allow-ungrouped-imports=no
+
