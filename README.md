@@ -269,13 +269,4 @@ Contributions are welcome! Please:
 - Style-Bert-VITS2: Community project
 - Manga109 Dataset: For research purposes
 
-## 📧 Contact
-
-[Add contact information]
-
 ---
-
-**Status:** ✅ Production Ready (với model integration)
-
-**Last Updated:** 2025-01-XX
-
