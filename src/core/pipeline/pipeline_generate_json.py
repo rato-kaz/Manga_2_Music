@@ -528,12 +528,13 @@ def build_output_json(
     # Use enhanced pipeline if enabled
     if enable_enhancements:
         try:
+            # pylint: disable=cyclic-import,import-outside-toplevel
             from src.core.pipeline.pipeline_enhanced import generate_enhanced_json_for_chapter
 
             generate_func = generate_enhanced_json_for_chapter
             logger.info("Using enhanced pipeline with reading order, character re-ID, manpu, etc.")
         except ImportError as e:
-            logger.warning(f"Enhanced pipeline not available, using base pipeline: {e}")
+            logger.warning("Enhanced pipeline not available, using base pipeline: %s", e)
             generate_func = generate_json_for_chapter
     else:
         generate_func = generate_json_for_chapter
