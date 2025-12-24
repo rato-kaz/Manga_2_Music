@@ -12,6 +12,8 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 
+from src.infrastructure.image_utils import crop_and_convert_to_grayscale, detect_edges
+
 BBOX = List[float]  # [x1, y1, x2, y2]
 
 
@@ -55,21 +57,17 @@ def detect_vein_marks(image: np.ndarray, bbox: BBOX) -> List[ManpuDetection]:
     crop_x1 = max(0, x1)
     crop_y1 = max(0, y1)
     crop_x2 = min(w, x2)
-    crop_y2 = min(h, y1 + (y2 - y1) * 0.4)  # Upper 40% of bbox
+    crop_y2 = min(h, int(y1 + (y2 - y1) * 0.4))  # Upper 40% of bbox
 
-    if crop_x2 <= crop_x1 or crop_y2 <= crop_y1:
+    # Use utility function for common operations
+    result = crop_and_convert_to_grayscale(image, crop_x1, crop_y1, crop_x2, crop_y2)
+    if result is None:
         return []
 
-    crop = image[crop_y1:crop_y2, crop_x1:crop_x2]
-
-    # Convert to grayscale
-    if len(crop.shape) == 3:
-        gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
-    else:
-        gray = crop
+    crop, gray = result
 
     # Detect vertical lines
-    edges = cv2.Canny(gray, 50, 150)
+    edges = detect_edges(gray)
 
     # HoughLines for vertical lines
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=10, maxLineGap=5)

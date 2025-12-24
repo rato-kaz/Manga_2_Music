@@ -38,6 +38,7 @@ from src.core.visual_analysis.speaker_diarization import (
     assign_speaker_to_bubble,
     diarize_speakers_in_panel,
 )
+from src.infrastructure.image_utils import safe_bbox_bounds
 from src.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
@@ -362,10 +363,7 @@ def enhance_json_with_speaker_diarization(
             # Crop panel image
             x1, y1, x2, y2 = [int(coord) for coord in panel_bbox]
             h, w = page.array.shape[:2]
-            x1 = max(0, min(x1, w))
-            y1 = max(0, min(y1, h))
-            x2 = max(0, min(x2, w))
-            y2 = max(0, min(y2, h))
+            x1, y1, x2, y2 = safe_bbox_bounds((x1, y1, x2, y2), w, h)
 
             if x2 <= x1 or y2 <= y1:
                 continue

@@ -16,6 +16,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from src.infrastructure.image_utils import crop_and_convert_to_grayscale, detect_edges
+
 BBOX = List[float]  # [x1, y1, x2, y2]
 
 
@@ -79,19 +81,15 @@ def detect_speech_bubble_tail(
     crop_x2 = min(w, x2 + padding)
     crop_y2 = min(h, y2 + padding)
 
-    if crop_x2 <= crop_x1 or crop_y2 <= crop_y1:
+    # Use utility function for common operations
+    result = crop_and_convert_to_grayscale(image, crop_x1, crop_y1, crop_x2, crop_y2)
+    if result is None:
         return None
 
-    crop = image[crop_y1:crop_y2, crop_x1:crop_x2]
-
-    # Convert to grayscale
-    if len(crop.shape) == 3:
-        gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
-    else:
-        gray = crop
+    crop, gray = result
 
     # Edge detection
-    edges = cv2.Canny(gray, 50, 150)
+    edges = detect_edges(gray)
 
     # Find contours
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

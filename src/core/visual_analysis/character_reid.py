@@ -17,6 +17,7 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
+from src.infrastructure.image_utils import safe_bbox_bounds
 from src.infrastructure.logger import get_logger
 
 logger = get_logger(__name__)
@@ -116,10 +117,7 @@ class CharacterFeatureExtractor:
 
         # Crop character region
         h, w = image.shape[:2]
-        x1 = max(0, min(x1, w))
-        y1 = max(0, min(y1, h))
-        x2 = max(0, min(x2, w))
-        y2 = max(0, min(y2, h))
+        x1, y1, x2, y2 = safe_bbox_bounds((x1, y1, x2, y2), w, h)
 
         if x2 <= x1 or y2 <= y1:
             # Invalid bbox, return zero vector
