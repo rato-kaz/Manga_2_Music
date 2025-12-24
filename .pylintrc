@@ -44,6 +44,3 @@ max-statements=50
 # Allow wildcard imports
 allow-wildcard-with-all=no
 
-# Allow ungrouped imports
-allow-ungrouped-imports=no
-

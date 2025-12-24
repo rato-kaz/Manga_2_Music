@@ -6,4 +6,3 @@ This layer contains:
 - File I/O operations
 - External service integrations
 """
-

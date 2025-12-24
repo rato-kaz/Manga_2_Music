@@ -6,4 +6,3 @@ This layer contains:
 - API endpoints (future)
 - User-facing interfaces
 """
-

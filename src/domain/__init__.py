@@ -6,4 +6,3 @@ This layer contains:
 - Value Objects: Immutable data structures
 - Domain Services: Business logic that doesn't belong to entities
 """
-

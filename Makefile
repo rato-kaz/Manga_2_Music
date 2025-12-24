@@ -18,11 +18,11 @@ install-dev:
 	pip install -r requirements-dev.txt
 
 test:
-	pytest tests/ -v
+	PYTHONPATH=. pytest tests/ -v
 
 lint:
-	pylint src/
-	mypy src/
+	PYTHONPATH=. pylint src/
+	PYTHONPATH=. mypy src/
 
 format:
 	black src/ tests/

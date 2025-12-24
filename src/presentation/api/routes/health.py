@@ -3,6 +3,7 @@ Health Check Routes: Endpoints for service health monitoring.
 """
 
 from fastapi import APIRouter
+
 from src.presentation.api.schemas import HealthResponse
 
 router = APIRouter(tags=["health"])
@@ -12,7 +13,7 @@ router = APIRouter(tags=["health"])
 async def health_check() -> HealthResponse:
     """
     Health check endpoint.
-    
+
     Returns:
         HealthResponse with service status
     """
@@ -26,9 +27,8 @@ async def health_check() -> HealthResponse:
 async def root() -> HealthResponse:
     """
     Root endpoint.
-    
+
     Returns:
         HealthResponse with service status
     """
     return await health_check()
-

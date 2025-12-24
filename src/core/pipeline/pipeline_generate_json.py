@@ -25,10 +25,10 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
-from dotenv import load_dotenv
 
 import numpy as np
 import torch
+from dotenv import load_dotenv
 from PIL import Image
 from transformers import AutoModel
 
@@ -203,9 +203,7 @@ def format_bubble_entry(
 
 def load_magiv2(device: torch.device):
     model = (
-        AutoModel.from_pretrained("ragavsachdeva/magiv2", trust_remote_code=True)
-        .to(device)
-        .eval()
+        AutoModel.from_pretrained("ragavsachdeva/magiv2", trust_remote_code=True).to(device).eval()
     )
     return model
 
@@ -233,23 +231,23 @@ def chunk_indices(n_items: int, batch_size: int) -> Iterable[range]:
 # -----------------------------------------------------------------------------
 
 
-def build_openai_describer(use_vlm: bool) -> Optional[Callable[[Path, Sequence[str]], Optional[str]]]:
+def build_openai_describer(
+    use_vlm: bool,
+) -> Optional[Callable[[Path, Sequence[str]], Optional[str]]]:
     if not use_vlm:
         return None
 
     try:
         from openai import OpenAI  # type: ignore
     except ImportError as exc:  # pragma: no cover - optional dependency
-        raise RuntimeError(
-            "OpenAI VLM support requested but openai is not installed."
-        ) from exc
-        
+        raise RuntimeError("OpenAI VLM support requested but openai is not installed.") from exc
+
     load_dotenv()
-    
+
     base_url = os.environ.get("OPENAI_BASE_URL")
     api_key = os.environ.get("OPENAI_API_KEY")
     model_name = os.environ.get("OPENAI_MODEL")
-    
+
     if not base_url or not api_key:
         raise RuntimeError("OPENAI_BASE_URL and OPENAI_API_KEY must be set in .env for VLM usage.")
 
@@ -266,12 +264,12 @@ def build_openai_describer(use_vlm: bool) -> Optional[Callable[[Path, Sequence[s
         combined_text = "\n".join(filter(None, texts))
         if combined_text:
             prompt += f"\nThe panel text includes:\n{combined_text}"
-        
+
         # Read and encode image as base64
         with open(image_path, "rb") as f:
             image_data = f.read()
         image_base64 = base64.b64encode(image_data).decode("utf-8")
-        
+
         try:
             response = client.chat.completions.create(
                 model=model_name,
@@ -282,16 +280,14 @@ def build_openai_describer(use_vlm: bool) -> Optional[Callable[[Path, Sequence[s
                             {"type": "text", "text": prompt},
                             {
                                 "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{image_base64}"
-                                }
-                            }
-                        ]
+                                "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                            },
+                        ],
                     }
                 ],
                 max_tokens=200,
             )
-            
+
             if response.choices and len(response.choices) > 0:
                 content = response.choices[0].message.content
                 if content:
@@ -299,7 +295,7 @@ def build_openai_describer(use_vlm: bool) -> Optional[Callable[[Path, Sequence[s
         except Exception as exc:  # pragma: no cover - external service
             logger.warning(f"OpenAI VLM description failed for {image_path}: {exc}", exc_info=True)
             return None
-        
+
         return None
 
     return describe_panel
@@ -336,7 +332,11 @@ def generate_json_for_chapter(
             try:
                 det_batch = model.predict_detections_and_associations(batch_arrays)
             except RuntimeError as err:
-                if "out of memory" in str(err).lower() and fallback_to_cpu_on_oom and device.type == "cuda":
+                if (
+                    "out of memory" in str(err).lower()
+                    and fallback_to_cpu_on_oom
+                    and device.type == "cuda"
+                ):
                     logger.warning("CUDA OOM during detection; falling back to CPU for this batch")
                     torch.cuda.empty_cache()
                     cpu_model = model.to(torch.device("cpu")).eval()
@@ -356,10 +356,12 @@ def generate_json_for_chapter(
                     use_tqdm=False,
                 )
             except RuntimeError as err:
-                if "out of memory" in str(err).lower() and fallback_to_cpu_on_oom and device.type == "cuda":
-                    logger.warning(
-                        "CUDA OOM during OCR; falling back to CPU for this batch"
-                    )
+                if (
+                    "out of memory" in str(err).lower()
+                    and fallback_to_cpu_on_oom
+                    and device.type == "cuda"
+                ):
+                    logger.warning("CUDA OOM during OCR; falling back to CPU for this batch")
                     torch.cuda.empty_cache()
                     cpu_model = model.to(torch.device("cpu")).eval()
                     ocr_batch = cpu_model.predict_ocr(
@@ -466,7 +468,11 @@ def generate_json_for_chapter(
                     if primary_char_idx < len(character_names)
                     else f"Character_{primary_char_idx}"
                 )
-                speaker = {"type": "character", "character_id": local_id, "character_name": speaker_name}
+                speaker = {
+                    "type": "character",
+                    "character_id": local_id,
+                    "character_name": speaker_name,
+                }
 
             bubble_entry = format_bubble_entry(
                 bubble_id=panel_bubble_counters[panel_idx],
@@ -523,6 +529,7 @@ def build_output_json(
     if enable_enhancements:
         try:
             from src.core.pipeline.pipeline_enhanced import generate_enhanced_json_for_chapter
+
             generate_func = generate_enhanced_json_for_chapter
             logger.info("Using enhanced pipeline with reading order, character re-ID, manpu, etc.")
         except ImportError as e:
@@ -541,7 +548,7 @@ def build_output_json(
             f"Processing chapter '{chapter_label}' -> chapter {chapter_number} "
             f"({len(image_paths)} pages)"
         )
-        
+
         if enable_enhancements and generate_func == generate_enhanced_json_for_chapter:
             entries = generate_func(
                 model=model,
@@ -677,4 +684,3 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
 
 if __name__ == "__main__":
     main()
-

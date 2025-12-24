@@ -17,30 +17,30 @@ MIN_GUTTER_SIZE: float = 10.0
 
 # Scene type keywords
 SCENE_KEYWORDS: Dict[str, List[str]] = {
-    'battle': ['fight', 'attack', 'sword', 'punch', 'kick', 'explosion', 'battle', 'war', 'combat'],
-    'romance': ['love', 'kiss', 'heart', 'romance', 'date', 'confession', 'hug'],
-    'comedy': ['laugh', 'funny', 'joke', 'comedy', 'silly', 'humor'],
-    'drama': ['cry', 'sad', 'tears', 'drama', 'emotional', 'conflict'],
-    'action': ['run', 'chase', 'jump', 'action', 'movement', 'speed'],
-    'slice_of_life': ['school', 'home', 'daily', 'normal', 'routine', 'everyday'],
-    'mystery': ['mystery', 'investigate', 'clue', 'secret', 'hidden'],
-    'horror': ['scary', 'fear', 'horror', 'dark', 'shadow', 'ghost'],
+    "battle": ["fight", "attack", "sword", "punch", "kick", "explosion", "battle", "war", "combat"],
+    "romance": ["love", "kiss", "heart", "romance", "date", "confession", "hug"],
+    "comedy": ["laugh", "funny", "joke", "comedy", "silly", "humor"],
+    "drama": ["cry", "sad", "tears", "drama", "emotional", "conflict"],
+    "action": ["run", "chase", "jump", "action", "movement", "speed"],
+    "slice_of_life": ["school", "home", "daily", "normal", "routine", "everyday"],
+    "mystery": ["mystery", "investigate", "clue", "secret", "hidden"],
+    "horror": ["scary", "fear", "horror", "dark", "shadow", "ghost"],
 }
 
 # Manpu to emotion mapping
 MANPU_EMOTION_MAP: Dict[str, List[str]] = {
-    'vein': ['anger', 'irritation', 'tense', 'frustrated'],
-    'sweat': ['nervous', 'awkward', 'comedy', 'anxious', 'embarrassed'],
-    'sparkles': ['joy', 'admiration', 'dreamy', 'excited', 'happy'],
-    'steam': ['rage', 'exertion', 'hot', 'angry', 'furious'],
-    'vertical_lines': ['shock', 'surprise', 'tension', 'dramatic'],
-    'cross_mark': ['anger', 'frustration', 'annoyed'],
-    'lightbulb': ['idea', 'realization', 'inspiration'],
-    'question_mark': ['confusion', 'curiosity', 'wondering'],
-    'exclamation_mark': ['surprise', 'shock', 'alarm'],
-    'tears': ['sad', 'crying', 'emotional'],
-    'heart': ['love', 'affection', 'romance'],
-    'z': ['sleep', 'tired', 'exhausted'],
+    "vein": ["anger", "irritation", "tense", "frustrated"],
+    "sweat": ["nervous", "awkward", "comedy", "anxious", "embarrassed"],
+    "sparkles": ["joy", "admiration", "dreamy", "excited", "happy"],
+    "steam": ["rage", "exertion", "hot", "angry", "furious"],
+    "vertical_lines": ["shock", "surprise", "tension", "dramatic"],
+    "cross_mark": ["anger", "frustration", "annoyed"],
+    "lightbulb": ["idea", "realization", "inspiration"],
+    "question_mark": ["confusion", "curiosity", "wondering"],
+    "exclamation_mark": ["surprise", "shock", "alarm"],
+    "tears": ["sad", "crying", "emotional"],
+    "heart": ["love", "affection", "romance"],
+    "z": ["sleep", "tired", "exhausted"],
 }
 
 # Image file extensions
@@ -60,4 +60,3 @@ DEFAULT_MIN_SAMPLES: int = 2
 
 # Reading order
 DEFAULT_4KOMA_THRESHOLD: float = 0.8  # Panel width threshold for 4-koma detection
-

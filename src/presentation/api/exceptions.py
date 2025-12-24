@@ -4,12 +4,12 @@ API Exceptions: Custom exceptions for API layer.
 These exceptions are caught by FastAPI error handlers.
 """
 
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 class APIException(Exception):
     """Base exception for API layer."""
-    
+
     def __init__(
         self,
         message: str,
@@ -24,26 +24,26 @@ class APIException(Exception):
 
 class ValidationError(APIException):
     """Raised when request validation fails."""
-    
+
     def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=400, detail=detail)
 
 
 class NotFoundError(APIException):
     """Raised when resource is not found."""
-    
+
     def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=404, detail=detail)
 
 
 class ProcessingError(APIException):
     """Raised when processing fails."""
-    
+
     def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=500, detail=detail)
 
 
 class JobNotFoundError(NotFoundError):
     """Raised when job is not found."""
-    pass
 
+    pass
