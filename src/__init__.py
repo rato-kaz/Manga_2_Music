@@ -9,4 +9,3 @@ This package follows Clean Architecture principles:
 """
 
 __version__ = "1.0.0"
-

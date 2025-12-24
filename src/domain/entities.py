@@ -7,43 +7,45 @@ These are the fundamental building blocks of the domain model.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 
 
 @dataclass(frozen=True)
 class BoundingBox:
     """Immutable bounding box value object."""
+
     x1: float
     y1: float
     x2: float
     y2: float
-    
+
     @property
     def center(self) -> tuple[float, float]:
         """Get center point of bounding box."""
         return ((self.x1 + self.x2) / 2.0, (self.y1 + self.y2) / 2.0)
-    
+
     @property
     def width(self) -> float:
         """Get width of bounding box."""
         return self.x2 - self.x1
-    
+
     @property
     def height(self) -> float:
         """Get height of bounding box."""
         return self.y2 - self.y1
-    
+
     @property
     def area(self) -> float:
         """Get area of bounding box."""
         return max(0.0, self.width * self.height)
-    
+
     def to_list(self) -> List[float]:
         """Convert to list format [x1, y1, x2, y2]."""
         return [self.x1, self.y1, self.x2, self.y2]
-    
+
     @classmethod
     def from_list(cls, bbox: List[float]) -> BoundingBox:
         """Create from list format [x1, y1, x2, y2]."""
@@ -55,11 +57,12 @@ class BoundingBox:
 @dataclass
 class PageImage:
     """Represents a manga page image."""
+
     path: Path
     image_array: np.ndarray
     width: int
     height: int
-    
+
     def __post_init__(self) -> None:
         """Validate image dimensions."""
         if self.width <= 0 or self.height <= 0:
@@ -69,6 +72,7 @@ class PageImage:
 @dataclass
 class Panel:
     """Represents a manga panel."""
+
     panel_id: int
     bounding_box: BoundingBox
     reading_order: Optional[int] = None
@@ -83,6 +87,7 @@ class Panel:
 @dataclass
 class Character:
     """Represents a character in manga."""
+
     character_id: int
     global_character_id: Optional[int] = None
     name: Optional[str] = None
@@ -93,6 +98,7 @@ class Character:
 @dataclass
 class SpeechBubble:
     """Represents a speech bubble."""
+
     bubble_id: int
     text: str
     language: str
@@ -105,6 +111,7 @@ class SpeechBubble:
 @dataclass
 class Speaker:
     """Represents the speaker of a speech bubble."""
+
     speaker_type: str  # 'character' or 'narrator'
     character_id: Optional[int] = None
     character_name: Optional[str] = None
@@ -115,6 +122,7 @@ class Speaker:
 @dataclass
 class ManpuDetection:
     """Represents a detected manpu (emotion symbol)."""
+
     manpu_type: str  # 'vein', 'sweat', 'sparkles', etc.
     bounding_box: BoundingBox
     emotion_tags: List[str] = field(default_factory=list)
@@ -124,6 +132,7 @@ class ManpuDetection:
 @dataclass
 class OnomatopoeiaDetection:
     """Represents a detected onomatopoeia."""
+
     visual_form: str
     onomatopoeia_type: str  # 'giongo' or 'gitaigo'
     bounding_box: BoundingBox
@@ -134,6 +143,7 @@ class OnomatopoeiaDetection:
 @dataclass
 class SceneContext:
     """Represents semantic context of a scene."""
+
     scene_type: str  # 'battle', 'romance', 'comedy', etc.
     location: Optional[str] = None
     time_of_day: Optional[str] = None
@@ -145,6 +155,7 @@ class SceneContext:
 @dataclass
 class TimelineEntry:
     """Represents timeline information for a panel."""
+
     panel_id: int
     start_time: float  # seconds
     end_time: float  # seconds
@@ -156,6 +167,7 @@ class TimelineEntry:
 @dataclass
 class Page:
     """Represents a manga page."""
+
     page_id: int
     manga_name: str
     chapter_number: int
@@ -163,7 +175,7 @@ class Page:
     panels: List[Panel] = field(default_factory=list)
     width: int = 0
     height: int = 0
-    
+
     def __post_init__(self) -> None:
         """Set dimensions from image if not provided."""
         if self.width == 0:
@@ -175,15 +187,16 @@ class Page:
 @dataclass
 class Chapter:
     """Represents a manga chapter."""
+
     chapter_number: int
     manga_name: str
     pages: List[Page] = field(default_factory=list)
-    
+
     @property
     def total_panels(self) -> int:
         """Get total number of panels in chapter."""
         return sum(len(page.panels) for page in self.pages)
-    
+
     @property
     def total_duration(self) -> float:
         """Get total duration in seconds."""
@@ -193,4 +206,3 @@ class Chapter:
                 if panel.timeline:
                     total += panel.timeline.duration
         return total
-

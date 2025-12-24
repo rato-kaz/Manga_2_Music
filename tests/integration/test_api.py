@@ -6,6 +6,7 @@ Example test file to demonstrate API testing.
 
 import pytest
 from fastapi.testclient import TestClient
+
 from src.presentation.api.app import app
 
 client = TestClient(app)
@@ -39,4 +40,3 @@ def test_process_chapter_missing_images() -> None:
     )
     # Should return validation error
     assert response.status_code in [400, 422]
-

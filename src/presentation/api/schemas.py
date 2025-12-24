@@ -6,11 +6,11 @@ These schemas define the API contract and provide automatic validation.
 
 from __future__ import annotations
 
-from typing import List, Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
-from pydantic import BaseModel, Field, validator
+from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel, Field, validator
 
 # ============================================================================
 # Request Schemas
@@ -19,11 +19,11 @@ from pydantic import BaseModel, Field, validator
 
 class ProcessChapterRequest(BaseModel):
     """Request schema for processing a manga chapter."""
-    
+
     manga_name: str = Field(..., description="Name of the manga")
     chapter_number: int = Field(..., ge=1, description="Chapter number")
     image_paths: List[str] = Field(..., min_items=1, description="List of image file paths")
-    
+
     # Optional flags
     enable_reading_order: bool = Field(True, description="Enable reading order resolution")
     enable_character_reid: bool = Field(True, description="Enable character re-identification")
@@ -33,11 +33,11 @@ class ProcessChapterRequest(BaseModel):
     enable_bgm: bool = Field(True, description="Enable BGM generation")
     enable_sfx: bool = Field(True, description="Enable SFX generation")
     enable_tts: bool = Field(True, description="Enable TTS generation")
-    
+
     # Model options
     device: str = Field("cuda", description="Device to use (cpu or cuda)")
     text_language: str = Field("ja", description="Text language code")
-    
+
     @validator("image_paths")
     def validate_image_paths(cls, v: List[str]) -> List[str]:
         """Validate that image paths exist."""
@@ -46,7 +46,7 @@ class ProcessChapterRequest(BaseModel):
             if not path.exists():
                 raise ValueError(f"Image file not found: {path_str}")
         return v
-    
+
     @validator("device")
     def validate_device(cls, v: str) -> str:
         """Validate device option."""
@@ -57,10 +57,10 @@ class ProcessChapterRequest(BaseModel):
 
 class ProcessVolumeRequest(BaseModel):
     """Request schema for processing an entire manga volume."""
-    
+
     manga_root: str = Field(..., description="Root directory containing chapter folders")
     max_chapters: Optional[int] = Field(None, ge=1, description="Maximum chapters to process")
-    
+
     # Same flags as ProcessChapterRequest
     enable_reading_order: bool = Field(True, description="Enable reading order resolution")
     enable_character_reid: bool = Field(True, description="Enable character re-identification")
@@ -70,10 +70,10 @@ class ProcessVolumeRequest(BaseModel):
     enable_bgm: bool = Field(True, description="Enable BGM generation")
     enable_sfx: bool = Field(True, description="Enable SFX generation")
     enable_tts: bool = Field(True, description="Enable TTS generation")
-    
+
     device: str = Field("cuda", description="Device to use (cpu or cuda)")
     text_language: str = Field("ja", description="Text language code")
-    
+
     @validator("manga_root")
     def validate_manga_root(cls, v: str) -> str:
         """Validate that manga root directory exists."""
@@ -90,7 +90,7 @@ class ProcessVolumeRequest(BaseModel):
 
 class ProcessingStatus(BaseModel):
     """Status of a processing job."""
-    
+
     job_id: str = Field(..., description="Unique job identifier")
     status: str = Field(..., description="Job status: pending, processing, completed, failed")
     progress: float = Field(0.0, ge=0.0, le=100.0, description="Progress percentage")
@@ -102,7 +102,7 @@ class ProcessingStatus(BaseModel):
 
 class ChapterResult(BaseModel):
     """Result of processing a chapter."""
-    
+
     chapter_number: int = Field(..., description="Chapter number")
     manga_name: str = Field(..., description="Manga name")
     status: str = Field(..., description="Processing status")
@@ -117,16 +117,18 @@ class ChapterResult(BaseModel):
 
 class VolumeResult(BaseModel):
     """Result of processing an entire volume."""
-    
+
     manga_name: str = Field(..., description="Manga name")
     chapters_processed: int = Field(..., description="Number of chapters processed")
     chapters: List[ChapterResult] = Field(default_factory=list, description="Chapter results")
-    total_processing_time_seconds: Optional[float] = Field(None, description="Total processing time")
+    total_processing_time_seconds: Optional[float] = Field(
+        None, description="Total processing time"
+    )
 
 
 class HealthResponse(BaseModel):
     """Health check response."""
-    
+
     status: str = Field("healthy", description="Service status")
     version: str = Field(..., description="API version")
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -134,7 +136,7 @@ class HealthResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Error response schema."""
-    
+
     error: str = Field(..., description="Error type")
     message: str = Field(..., description="Error message")
     detail: Optional[Dict[str, Any]] = Field(None, description="Additional error details")
@@ -147,7 +149,7 @@ class ErrorResponse(BaseModel):
 
 class PanelMetadata(BaseModel):
     """Panel metadata for API response."""
-    
+
     panel_id: int
     reading_order: Optional[int] = None
     scene_type: Optional[str] = None
@@ -157,17 +159,16 @@ class PanelMetadata(BaseModel):
 
 class PageMetadata(BaseModel):
     """Page metadata for API response."""
-    
+
     page_id: int
     panels: List[PanelMetadata] = Field(default_factory=list)
 
 
 class ChapterMetadata(BaseModel):
     """Chapter metadata for API response."""
-    
+
     chapter_number: int
     manga_name: str
     pages: List[PageMetadata] = Field(default_factory=list)
     total_panels: int
     total_duration_seconds: Optional[float] = None
-

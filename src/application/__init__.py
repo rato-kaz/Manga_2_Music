@@ -6,4 +6,3 @@ This layer contains:
 - Application services: Orchestration of domain services
 - DTOs: Data transfer objects for use cases
 """
-

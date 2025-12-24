@@ -4,20 +4,21 @@ FastAPI Application: Main application setup and configuration.
 This module creates and configures the FastAPI app instance.
 """
 
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from slowapi.errors import RateLimitExceeded
-import uvicorn
-
-from src.presentation.api.routes import processing, health
-from src.presentation.api.exceptions import APIException
-from src.presentation.api.schemas import ErrorResponse
-from src.infrastructure.logging_config import setup_logging
-from src.infrastructure.logger import get_logger
-from src.presentation.api.middleware.security import limiter, _rate_limit_exceeded_handler
-from config.settings import get_settings
 from pathlib import Path
+
+import uvicorn
+from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+
+from config.settings import get_settings
+from src.infrastructure.logger import get_logger
+from src.infrastructure.logging_config import setup_logging
+from src.presentation.api.exceptions import APIException
+from src.presentation.api.middleware.security import _rate_limit_exceeded_handler, limiter
+from src.presentation.api.routes import health, processing
+from src.presentation.api.schemas import ErrorResponse
 
 settings = get_settings()
 
@@ -34,12 +35,12 @@ logger = get_logger(__name__)
 def create_app() -> FastAPI:
     """
     Create and configure FastAPI application.
-    
+
     Returns:
         Configured FastAPI app instance
     """
     logger.info("Initializing FastAPI application")
-    
+
     app = FastAPI(
         title="Manga-to-Music API",
         description="API for converting manga to audio experience",
@@ -47,7 +48,7 @@ def create_app() -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
     )
-    
+
     # Add CORS middleware
     cors_origins = settings.cors_origins if settings.cors_origins else ["*"]
     app.add_middleware(
@@ -57,22 +58,22 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
-    
+
     # Add rate limiting
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-    
+
     # Register routes
     app.include_router(health.router)
     app.include_router(processing.router)
-    
+
     # Error handlers
     @app.exception_handler(APIException)
     async def api_exception_handler(request: Request, exc: APIException) -> JSONResponse:
         """Handle API exceptions."""
         logger.error(
             f"API exception: {exc.__class__.__name__} - {exc.message}",
-            extra={"status_code": exc.status_code, "detail": exc.detail}
+            extra={"status_code": exc.status_code, "detail": exc.detail},
         )
         return JSONResponse(
             status_code=exc.status_code,
@@ -82,7 +83,7 @@ def create_app() -> FastAPI:
                 detail=exc.detail,
             ).dict(),
         )
-    
+
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """Handle general exceptions."""
@@ -94,7 +95,7 @@ def create_app() -> FastAPI:
                 message=str(exc),
             ).dict(),
         )
-    
+
     logger.info("FastAPI application initialized successfully")
     return app
 
@@ -107,7 +108,7 @@ def main() -> None:
     """Run the FastAPI application."""
     logger.info(f"Starting FastAPI server on {settings.api_host}:{settings.api_port}")
     logger.info(f"Environment: {'Production' if settings.is_production else 'Development'}")
-    
+
     uvicorn.run(
         "src.presentation.api.app:app",
         host=settings.api_host,

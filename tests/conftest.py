@@ -4,8 +4,10 @@ Pytest configuration and fixtures.
 This file provides shared fixtures for all tests.
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from src.infrastructure.logging_config import setup_logging
 
 
@@ -29,4 +31,3 @@ def test_output_dir(tmp_path: Path) -> Path:
     output_dir = tmp_path / "output"
     output_dir.mkdir(parents=True)
     return output_dir
-

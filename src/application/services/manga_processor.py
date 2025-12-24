@@ -6,10 +6,9 @@ This service orchestrates the full pipeline processing.
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Dict, List, Optional
-import time
-import uuid
 
 from src.core.pipeline.full_pipeline import process_manga_chapter, process_manga_volume
 from src.presentation.api.exceptions import ProcessingError, ValidationError
@@ -17,17 +16,17 @@ from src.presentation.api.exceptions import ProcessingError, ValidationError
 
 class MangaProcessingService:
     """Service for processing manga chapters and volumes."""
-    
+
     def __init__(self, output_base_dir: Path = Path("output")):
         """
         Initialize manga processing service.
-        
+
         Args:
             output_base_dir: Base directory for output files
         """
         self.output_base_dir = output_base_dir
         self.output_base_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def process_chapter(
         self,
         manga_name: str,
@@ -47,7 +46,7 @@ class MangaProcessingService:
     ) -> Dict:
         """
         Process a single manga chapter.
-        
+
         Args:
             manga_name: Name of the manga
             chapter_number: Chapter number
@@ -55,10 +54,10 @@ class MangaProcessingService:
             enable_*: Feature flags
             device: Device to use
             text_language: Language code
-            
+
         Returns:
             Dictionary with processing results
-            
+
         Raises:
             ProcessingError: If processing fails
             ValidationError: If input validation fails
@@ -66,24 +65,24 @@ class MangaProcessingService:
         # Validate inputs
         if not image_paths:
             raise ValidationError("At least one image path is required")
-        
+
         # Convert string paths to Path objects
         try:
             chapter_images = [Path(path) for path in image_paths]
-            
+
             # Validate all paths exist
             for img_path in chapter_images:
                 if not img_path.exists():
                     raise ValidationError(f"Image file not found: {img_path}")
         except Exception as e:
             raise ValidationError(f"Invalid image paths: {e}") from e
-        
+
         # Prepare output directory
         output_dir = self.output_base_dir / manga_name / f"chapter_{chapter_number}"
-        
+
         # Process chapter
         start_time = time.time()
-        
+
         try:
             result = process_manga_chapter(
                 chapter_images=chapter_images,
@@ -101,18 +100,18 @@ class MangaProcessingService:
                 device=device,
                 text_language=text_language,
             )
-            
+
             processing_time = time.time() - start_time
             result["processing_time_seconds"] = processing_time
-            
+
             return result
-            
+
         except Exception as e:
             raise ProcessingError(
                 f"Failed to process chapter {chapter_number}: {str(e)}",
-                detail={"chapter_number": chapter_number, "manga_name": manga_name}
+                detail={"chapter_number": chapter_number, "manga_name": manga_name},
             ) from e
-    
+
     def process_volume(
         self,
         manga_root: str,
@@ -131,17 +130,17 @@ class MangaProcessingService:
     ) -> Dict:
         """
         Process an entire manga volume.
-        
+
         Args:
             manga_root: Root directory containing chapter folders
             max_chapters: Maximum chapters to process
             enable_*: Feature flags
             device: Device to use
             text_language: Language code
-            
+
         Returns:
             Dictionary with processing results
-            
+
         Raises:
             ProcessingError: If processing fails
             ValidationError: If input validation fails
@@ -150,10 +149,10 @@ class MangaProcessingService:
         manga_root_path = Path(manga_root)
         if not manga_root_path.exists() or not manga_root_path.is_dir():
             raise ValidationError(f"Manga root directory not found: {manga_root}")
-        
+
         # Process volume
         start_time = time.time()
-        
+
         try:
             results = process_manga_volume(
                 manga_root=manga_root_path,
@@ -170,19 +169,17 @@ class MangaProcessingService:
                 device=device,
                 text_language=text_language,
             )
-            
+
             processing_time = time.time() - start_time
-            
+
             return {
                 "manga_name": manga_root_path.name,
                 "chapters_processed": len(results),
                 "chapters": results,
                 "total_processing_time_seconds": processing_time,
             }
-            
+
         except Exception as e:
             raise ProcessingError(
-                f"Failed to process volume: {str(e)}",
-                detail={"manga_root": manga_root}
+                f"Failed to process volume: {str(e)}", detail={"manga_root": manga_root}
             ) from e
-
